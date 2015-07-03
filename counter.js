@@ -37,7 +37,7 @@ http.createServer(function(request, response){
   var search = request.url.substr(1).split(',')
   // 17710_2,317710_3,284770_6,212680_5,321260_9,72000_6
   for (var card in search) {
-    response.write("Looking for: " + search[card] + "\n");
+    //response.write("Looking for: " + search[card] + "\n");
     result[search[card]] = { 'count': 0, 'game': 'unknown', 'card': 'unknown' }
   }
 
@@ -49,21 +49,29 @@ http.createServer(function(request, response){
         var app_data = descriptions[key]['app_data'];
         var card = app_data['appid'] + '_' + app_data['item_type'];
         if (card in result) {
-          response.write("Found card: " + card + "\n");
+          //response.write("Found card: " + card + "\n");
           result[card]['count'] += 1;
           result[card]['game'] = descriptions[key]['type'];
           result[card]['card'] = descriptions[key]['market_name'];
         } else {
-          response.write(card + "\n");
+          //response.write(card + "\n");
         }
       }
       if (res['more']) {
-        response.write("Searching more.. " + res['more_start']);
-        search_inventory(res['more_start']);
+        response.write(res['more_start'] + "...\n");
+        setTimeout(function() {
+          search_inventory(res['more_start'])
+        }, 0);
       } else {
         for (var card in result) {
+          var link =
+            result[card]['count'] > 1 ?
+            "http://www.steamcardexchange.net/index.php?inventorygame-appid-" + card :
+            "";
           response.write(result[card]['count'].toString() + " : " +
-                         result[card]['game'] + "\n");
+                         result[card]['game'] + " : " +
+                         result[card]['card'] + " : " +
+                         link + "\n");
         }
         response.end();
       }
