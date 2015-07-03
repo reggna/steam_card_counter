@@ -1,0 +1,19 @@
+
+This tool searches through the inventory of http://steam.cards and
+counts the number of cards that matches the users search terms.
+
+Right now, it's only possible to search by card id.
+
+Example:
+ 1. Start the server by runnig:
+      node counter.js
+ 2. Visit http://localhost:8080/17710_2,317710_3,284770_6,212680_5
+    Note that the ID:s are separated by commas.
+    You can find the ID of a specific card by looking at the URL for the
+    Quick-Trade button on http://steam.cards.
+ 3. The page will fill up as the search goes on.  The API is limited to
+    2500 items per lookup, so it will have to go through a few pages
+    before displaying the results.
+ 4. The result is printed out at the bottom of the page.
+ 5. Happy trading!
+
