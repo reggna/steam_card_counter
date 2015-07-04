@@ -31,7 +31,8 @@ var get_user_inventory = function(id, start, callback) {
 };
 
 // Start server
-http.createServer(function(request, response){
+http.createServer(function(request, response) {
+  if (request.url === "/favicon.ico") return;
   response.writeHeader(200, {"Content-Type": "text/plain"});
   var result = { };
   var search = request.url.substr(1).split(',')
