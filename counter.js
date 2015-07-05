@@ -4,8 +4,16 @@ var http = require("http");
 // Download a page and call callback(body)
 var get_page = function(options, callback) {
   http.request(options, function(res) {
-    //console.log('STATUS: ' + res.statusCode);
-    //console.log('HEADERS: ' + JSON.stringify(res.headers));
+    // Somewhat handle redirects (not really, but good enough):
+    if (res.statusCode > 300 && res.statusCode < 400 && res.headers.location) {
+      if (!options.headers){
+        options.headers = {};
+      }
+      options.headers['cookie'] = res.headers["set-cookie"];
+      options.path = res.headers.location;
+      return get_page(options, callback);
+    }
+
     res.setEncoding('utf8');
     var ret = "";
     res.on('data', function (chunk) {
@@ -15,7 +23,7 @@ var get_page = function(options, callback) {
       callback(ret);
     });
   }).end();
-}
+};
 
 // Download a user's inventory and call callback(inventory)
 var get_user_inventory = function(id, start, callback) {
@@ -28,6 +36,17 @@ var get_user_inventory = function(id, start, callback) {
   get_page(options, function(ret) {
     callback(JSON.parse(ret));
   });
+};
+
+// Download the inventory page from http://steam.cards
+var get_inventory_page = function(callback) {
+  var options = {
+    host: 'www.steamcardexchange.net',
+    port: 80,
+    path: '/index.php?inventory',
+    method: 'GET'
+  };
+  get_page(options, callback);
 };
 
 // Start server
