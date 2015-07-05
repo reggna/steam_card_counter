@@ -49,6 +49,28 @@ var get_inventory_page = function(callback) {
   get_page(options, callback);
 };
 
+var parse_inventory_page_sets = function(data) {
+  // Parse the game prices:
+  var gameprices = data.substr(data.indexOf("var gameprices=")+15);
+  gameprices = gameprices.substr(0, gameprices.indexOf(';'));
+  gameprices = JSON.parse(gameprices);
+
+  // Get a list of all games and the number of cards in each set:
+  var sets = {};
+  var regexp = new RegExp(/(?:\<tr\>\<td class=\"name[ a-z]+\"\>\<a href=\"index\.php\?inventorygame-appid-)(\d+)(?:\"\>)([^\<]*)(?:\<\/a\>\<\/td\>\<td id=\"price-)(\d+)(?:\"\>- - -\<\/td\>\<td\>(?:\d*)\<\/td\>\<td\>)(?:\d+)(?:x \()(?:\d+)(?: of )(\d+)(?: Cards\))/g);
+  var match;
+  while (match = regexp.exec(data)) {
+    // Convert game_id to an integer
+    var game_id = ~~match[1];
+    sets[game_id] = {
+      'game_name': match[2],
+      'card_price': ~~(gameprices[match[3]]),
+      'nr_cards': ~~match[4]
+    };
+  }
+  return sets;
+}
+
 // Start server
 http.createServer(function(request, response) {
   if (request.url === "/favicon.ico") return;
@@ -101,4 +123,63 @@ http.createServer(function(request, response) {
 }).listen(8080);
 
 sys.puts("Server Running on http://localhost:8080");
+
+// Start server
+http.createServer(function(request, response) {
+  if (request.url === "/favicon.ico") return;
+  response.writeHeader(200, {"Content-Type": "text/plain"});
+  var user_id = request.url.substr(1);
+  if (user_id === "") {
+    response.write("No user_id");
+    response.end();
+    return;
+  }
+
+  var parse_inventory_page = function(data) {
+    // Get the current queue for the bot:
+    var current_cueue = data.substr(data.indexOf("There are currently"));
+    current_cueue = current_cueue.substr(0, current_cueue.indexOf('<'));
+    response.write(current_cueue + "\n\n");
+
+    // Parse all the card sets from the page:
+    var sets = parse_inventory_page_sets(data);
+    // Compare that to our inventory:
+    get_user_inventory(user_id, 0, function(data) {
+      var inventory = [];
+      var descriptions = data['rgDescriptions'];
+      var last_game_id;
+      for (key in descriptions) {
+        var game_id = ~~(descriptions[key]['app_data']['appid']);
+        var game;
+        if ((game = sets[game_id]) !== undefined) {
+          if (last_game_id === undefined || last_game_id !== game_id) {
+            inventory.push({
+              'game_id': game_id,
+              'game_name': game['game_name'],
+              'total_price' : game['card_price'] * game['nr_cards']
+            });
+            last_game_id = game_id;
+          }
+        } else {
+           // response.write("Could not find game: " + game_id + "\n");
+        }
+      }
+
+      // Sort the list by total price:
+      inventory.sort(function(a, b) {
+        return b['total_price'] - a['total_price'];
+      });
+
+      // Print the result:
+      for (var card in inventory) {
+        response.write(inventory[card]['game_name'] + " : " + inventory[card]['total_price'] + "\n");
+      }
+
+      response.end();
+    });
+  };
+  get_inventory_page(parse_inventory_page);
+}).listen(8081);
+
+sys.puts("Server Running on http://localhost:8081");
 
