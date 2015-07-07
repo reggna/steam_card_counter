@@ -1,8 +1,10 @@
 
-This tool searches through the inventory of http://steam.cards and
-counts the number of cards that matches the users search terms.
-
-Right now, it's only possible to search by card id.
+Some tools for trading steam cards at http://steam.cards (aka
+steamcardexchange.net).  There's currently two services running, one
+for searching through the inventory of the trading bot and monitors
+the inventory status of the cards the user is missing, and another
+that looks through a users own inventory and lists the prices of cards
+that the user might be interesting in trading away.
 
 Example:
  1. Start the server by runnig:
@@ -11,6 +13,10 @@ Example:
     Note that the ID:s are separated by commas.
     You can find the ID of a specific card by looking at the URL for the
     Quick-Trade button on http://steam.cards.
+  or
+    Visit http://localhost:8081/[steam_id]
+    You can get your steam_id by looking at the url of your steam profile page
+    at http://steamcommunity.com/
  3. The page will fill up as the search goes on.  The API is limited to
     2500 items per lookup, so it will have to go through a few pages
     before displaying the results.
