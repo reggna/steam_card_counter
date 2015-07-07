@@ -1,3 +1,5 @@
+"use strict";
+
 var sys = require("sys");
 var http = require("http");
 
@@ -86,13 +88,24 @@ http.createServer(function(request, response) {
   //CardExchange
   var search_inventory = function(start) {
     get_user_inventory('CardExchange', start, function(res) {
+      var amount = {};
+      var rgInventory = res['rgInventory'];
+      var key;
+      for (key in rgInventory) {
+        var item_id = rgInventory[key]["classid"];
+        if (amount[item_id] === undefined) {
+          amount[item_id] = 0;
+        }
+        amount[item_id] += 1;
+      }
+
       var descriptions = res['rgDescriptions'];
       for (key in descriptions) {
         var app_data = descriptions[key]['app_data'];
         var card = app_data['appid'] + '_' + app_data['item_type'];
         if (card in result) {
           //response.write("Found card: " + card + "\n");
-          result[card]['count'] += 1;
+          result[card]['count'] = amount[descriptions[key]['classid']];
           result[card]['game'] = descriptions[key]['type'];
           result[card]['card'] = descriptions[key]['market_name'];
         } else {
@@ -100,7 +113,7 @@ http.createServer(function(request, response) {
         }
       }
       if (res['more']) {
-        response.write(res['more_start'] + "...\n");
+        //response.write("Going to next page: " + res['more_start'] + "...\n");
         setTimeout(function() {
           search_inventory(res['more_start'])
         }, 0);
@@ -110,10 +123,10 @@ http.createServer(function(request, response) {
             result[card]['count'] > 1 ?
             "http://www.steamcardexchange.net/index.php?inventorygame-appid-" + card :
             "";
-          response.write(result[card]['count'].toString() + " : " +
+          response.write(result[card]['count'] + " : " +
                          result[card]['game'] + " : " +
                          result[card]['card'] + " : " +
-                         link + "\n");
+                         link + " : " + card + "\n");
         }
         response.end();
       }
@@ -148,6 +161,7 @@ http.createServer(function(request, response) {
       var inventory = [];
       var descriptions = data['rgDescriptions'];
       var last_game_id;
+      var key;
       for (key in descriptions) {
         var game_id = ~~(descriptions[key]['app_data']['appid']);
         var game;
