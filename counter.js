@@ -163,6 +163,10 @@ http.createServer(function(request, response) {
       var last_game_id;
       var key;
       for (key in descriptions) {
+        var type = descriptions[key]['type'];
+        if (type.substring(type.length - 4, type.length) !== "Card") {
+          continue;
+        }
         var game_id = ~~(descriptions[key]['app_data']['appid']);
         var game;
         if ((game = sets[game_id]) !== undefined) {
