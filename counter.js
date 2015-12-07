@@ -57,17 +57,22 @@ var parse_inventory_page_sets = function(data) {
   gameprices = gameprices.substr(0, gameprices.indexOf(';'));
   gameprices = JSON.parse(gameprices);
 
+  var stocklist = data.substr(data.indexOf("var stocklist=") + 14);
+  stocklist = stocklist.substr(0, stocklist.indexOf(';'));
+  stocklist = JSON.parse(stocklist);
+
   // Get a list of all games and the number of cards in each set:
   var sets = {};
-  var regexp = new RegExp(/(?:\<tr\>\<td class=\"name[ a-z]+\"\>\<a href=\"index\.php\?inventorygame-appid-)(\d+)(?:\"\>)([^\<]*)(?:\<\/a\>\<\/td\>\<td id=\"price-)(\d+)(?:\"\>- - -\<\/td\>\<td\>(?:\d*)\<\/td\>\<td\>)(?:\d+)(?:x \()(?:\d+)(?: of )(\d+)(?: Cards\))/g);
+  var regexp = new RegExp(/\<a href=\"index\.php\?inventorygame-appid-(\d+)\"\>([^\<]*)\<\/a\>\<\/td\>\<td id=\"price-(\d+)/g);
   var match;
   while (match = regexp.exec(data)) {
     // Convert game_id to an integer
     var game_id = ~~match[1];
+    var nr_cards = stocklist[match[3]] || [undefined];
     sets[game_id] = {
       'game_name': match[2],
       'card_price': ~~(gameprices[match[3]]),
-      'nr_cards': ~~match[4]
+      'nr_cards': ~~(nr_cards[0])
     };
   }
   return sets;
