@@ -51,6 +51,11 @@ var get_inventory_page = function(callback) {
   get_page(options, callback);
 };
 
+var is_card = function(item) {
+  var type = item['type'];
+  return type.substring(type.length - 4, type.length) === "Card";
+};
+
 var parse_inventory_page_sets = function(data) {
   // Parse the game prices:
   var gameprices = data.substr(data.indexOf("var gameprices=")+15);
@@ -168,8 +173,7 @@ http.createServer(function(request, response) {
       var last_game_id;
       var key;
       for (key in descriptions) {
-        var type = descriptions[key]['type'];
-        if (type.substring(type.length - 4, type.length) !== "Card") {
+        if (!is_card(descriptions[key])) {
           continue;
         }
         var game_id = ~~(descriptions[key]['app_data']['appid']);
