@@ -1,6 +1,5 @@
 "use strict";
 
-var sys = require("sys");
 var http = require("http");
 
 // Download a page and call callback(body)
@@ -145,7 +144,7 @@ http.createServer(function(request, response) {
   search_inventory(0);
 }).listen(8080);
 
-sys.puts("Server Running on http://localhost:8080");
+console.log("Server Running on http://localhost:8080");
 
 // Start server
 http.createServer(function(request, response) {
@@ -208,5 +207,5 @@ http.createServer(function(request, response) {
   get_inventory_page(parse_inventory_page);
 }).listen(8081);
 
-sys.puts("Server Running on http://localhost:8081");
+console.log("Server Running on http://localhost:8081");
 
