@@ -27,7 +27,7 @@ const get_user_inventory = function(id, start, callback) {
   const options = {
     host: 'steamcommunity.com',
     port: 80,
-    path: '/id/' + id + '/inventory/json/753/6?start=' + start,
+    path: `/id/${id}/inventory/json/753/6?start=${start}`,
     method: 'GET'
   };
   get_page(options, ret => callback(JSON.parse(ret)));
@@ -104,7 +104,7 @@ http.createServer(function(request, response) {
       const descriptions = res['rgDescriptions'];
       for (const key in descriptions) {
         const app_data = descriptions[key]['app_data'];
-        const card = app_data['appid'] + '_' + app_data['item_type'];
+        const card = `${app_data['appid']}_${app_data['item_type']}`;
         if (card in result) {
           //response.write("Found card: " + card + "\n");
           result[card]['count'] = amount[descriptions[key]['classid']];
@@ -119,14 +119,12 @@ http.createServer(function(request, response) {
         setTimeout( () => search_inventory(res['more_start']), 0);
       } else {
         for (const card in result) {
+          const c = result[card];
           const link =
-            result[card]['count'] > 1 ?
-            "http://www.steamcardexchange.net/index.php?inventorygame-appid-" + card :
+            c['count'] > 1 ?
+            `http://www.steamcardexchange.net/index.php?inventorygame-appid-${card}` :
             "";
-          response.write(result[card]['count'] + " : " +
-                         result[card]['game'] + " : " +
-                         result[card]['card'] + " : " +
-                         link + " : " + card + "\n");
+          response.write(`${c['count']} : ${c['game']} : ${c['card']} : ${link} : ${card}\n`);
         }
         response.end();
       }
@@ -152,7 +150,7 @@ http.createServer(function(request, response) {
     // Get the current queue for the bot:
     let current_cueue = data.substr(data.indexOf("There are currently"));
     current_cueue = current_cueue.substr(0, current_cueue.indexOf('<'));
-    response.write(current_cueue + "\n\n");
+    response.write(`${current_cueue}\n\n`);
 
     // Parse all the card sets from the page:
     const sets = parse_inventory_page_sets(data);
@@ -186,7 +184,7 @@ http.createServer(function(request, response) {
 
       // Print the result:
       for (const card in inventory) {
-        response.write(inventory[card]['game_name'] + " : " + inventory[card]['total_price'] + "\n");
+        response.write(`${inventory[card]['game_name']} : ${inventory[card]['total_price']}\n`);
       }
 
       response.end();
