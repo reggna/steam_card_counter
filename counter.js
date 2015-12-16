@@ -17,12 +17,8 @@ const get_page = function(options, callback) {
 
     res.setEncoding('utf8');
     let ret = "";
-    res.on('data', function (chunk) {
-      ret += chunk;
-    });
-    res.on('end', function() {
-      callback(ret);
-    });
+    res.on('data', (chunk) => ret += chunk);
+    res.on('end', () => callback(ret));
   }).end();
 };
 
@@ -34,9 +30,7 @@ const get_user_inventory = function(id, start, callback) {
     path: '/id/' + id + '/inventory/json/753/6?start=' + start,
     method: 'GET'
   };
-  get_page(options, function(ret) {
-    callback(JSON.parse(ret));
-  });
+  get_page(options, ret => callback(JSON.parse(ret)));
 };
 
 // Download the inventory page from http://steam.cards
@@ -122,9 +116,7 @@ http.createServer(function(request, response) {
       }
       if (res['more']) {
         //response.write("Going to next page: " + res['more_start'] + "...\n");
-        setTimeout(function() {
-          search_inventory(res['more_start'])
-        }, 0);
+        setTimeout( () => search_inventory(res['more_start']), 0);
       } else {
         for (const card in result) {
           const link =
@@ -190,9 +182,7 @@ http.createServer(function(request, response) {
       }
 
       // Sort the list by total price:
-      inventory.sort(function(a, b) {
-        return b['total_price'] - a['total_price'];
-      });
+      inventory.sort( (a, b) => b['total_price'] - a['total_price']);
 
       // Print the result:
       for (const card in inventory) {
