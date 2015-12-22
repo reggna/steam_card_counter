@@ -2,8 +2,8 @@
   "manifest_version": 2,
 
   "name": "Badge evaluator",
-  "description": "Extension for showing the total price of a steam badge on the Steam Card Exchange.  Note that this makes the inventory page load EXTREMELY slow, so use with caution.",
-  "version": "0.5",
+  "description": "Extension for showing the total price of a steam badge on the Steam Card Exchange",
+  "version": "1.0",
   "content_scripts": [
     {
       "matches": [

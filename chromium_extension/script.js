@@ -7,24 +7,16 @@ $(document).ready(function() {
 
 
   function run() {
-    if (typeof(gameprices) === "undefined") {
-      $.each($("#inventorylist")[0].rows, function(i, row) {
-        if (i === 0) return;
-        var price = row.cells[1].innerHTML.split('c')[0];
+    $.each(gameprices, function(appid, price) {
+      var row = $('#price-'+appid).parent()[0];
+      if (row !== undefined) {
         var col = row.insertCell(-1);
-        var count = parseInt(row.cells[3].innerText.substring(9, 12));
-        col.innerText = price * count;
-      });
-    } else {
-      $.each(gameprices, function(appid, price) {
-        var row = $('#price-'+appid).parent()[0];
-        if (row !== undefined) {
-          var col = row.insertCell(-1);
-          var count = parseInt(row.cells[3].innerText.substring(9, 12));
+        if (appid in stocklist) {
+          var count = stocklist[appid][0];
           col.innerText = price * count;
         }
-      });
-    }
+      }
+    });
   };
   var script = document.createElement('script');
   script.appendChild(document.createTextNode('('+ run +')();'));
