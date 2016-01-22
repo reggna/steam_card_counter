@@ -152,6 +152,8 @@ http.createServer(function(request, response) {
     current_cueue = current_cueue.substr(0, current_cueue.indexOf('<'));
     response.write(`${current_cueue}\n\n`);
 
+    // Total value of all cards:
+    let total = 0;
     // Parse all the card sets from the page:
     const sets = parse_inventory_page_sets(data);
     // Compare that to our inventory:
@@ -174,6 +176,7 @@ http.createServer(function(request, response) {
             });
             last_game_id = game_id;
           }
+          total += game['card_price'];
         } else {
            // response.write("Could not find game: " + game_id + "\n");
         }
@@ -186,6 +189,8 @@ http.createServer(function(request, response) {
       for (const card in inventory) {
         response.write(`${inventory[card]['game_name']} : ${inventory[card]['total_price']}\n`);
       }
+
+      response.write(`\nTotal value of all cards owned: ${total}`);
 
       response.end();
     });
