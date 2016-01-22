@@ -46,7 +46,8 @@ const get_inventory_page = function(callback) {
 
 const is_card = function(item) {
   const type = item['type'];
-  return type.substring(type.length - 4, type.length) === "Card";
+  const is_foil = item['market_name'].indexOf('(Foil)') > -1;
+  return type.substring(type.length - 4, type.length) === "Card" && !is_foil;
 };
 
 const parse_inventory_page_sets = function(data) {
