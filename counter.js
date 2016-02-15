@@ -33,6 +33,20 @@ const get_user_inventory = function(id, start, callback) {
   get_page(options, ret => callback(JSON.parse(ret)));
 };
 
+// Aggregate over a given inventory and return a map with classid => number of cards
+const count_cards = function(inventory) {
+  const amount = { };
+  const rgInventory = inventory['rgInventory'];
+  for (const key in rgInventory) {
+    const item_id = rgInventory[key]["classid"];
+    if (amount[item_id] === undefined) {
+      amount[item_id] = 0;
+    }
+    amount[item_id] += 1;
+  }
+  return amount;
+}
+
 // Download the inventory page from http://steam.cards
 const get_inventory_page = function(callback) {
   const options = {
@@ -92,15 +106,7 @@ http.createServer(function(request, response) {
   //CardExchange
   const search_inventory = function(start) {
     get_user_inventory('CardExchange', start, function(res) {
-      let amount = {};
-      const rgInventory = res['rgInventory'];
-      for (const key in rgInventory) {
-        const item_id = rgInventory[key]["classid"];
-        if (amount[item_id] === undefined) {
-          amount[item_id] = 0;
-        }
-        amount[item_id] += 1;
-      }
+      let amount = count_cards(res);
 
       const descriptions = res['rgDescriptions'];
       for (const key in descriptions) {
@@ -159,6 +165,7 @@ http.createServer(function(request, response) {
     const sets = parse_inventory_page_sets(data);
     // Compare that to our inventory:
     get_user_inventory(user_id, 0, function(data) {
+      let amount = count_cards(data);
       let inventory = [];
       const descriptions = data['rgDescriptions'];
       let last_game_id;
@@ -173,10 +180,12 @@ http.createServer(function(request, response) {
             inventory.push({
               'game_id': game_id,
               'game_name': game['game_name'],
-              'total_price' : game['card_price'] * game['nr_cards']
+              'total_price' : game['card_price'] * game['nr_cards'],
+              'count' : 0
             });
             last_game_id = game_id;
           }
+          inventory[inventory.length - 1]['count'] += amount[descriptions[key]['classid']];
           total += game['card_price'];
         } else {
            // response.write("Could not find game: " + game_id + "\n");
@@ -188,7 +197,7 @@ http.createServer(function(request, response) {
 
       // Print the result:
       for (const card in inventory) {
-        response.write(`${inventory[card]['game_name']} : ${inventory[card]['total_price']}\n`);
+        response.write(`${inventory[card]['count']} x ${inventory[card]['game_name']} : ${inventory[card]['total_price']}\n`);
       }
 
       response.write(`\nTotal value of all cards owned: ${total}`);
