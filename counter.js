@@ -154,10 +154,12 @@ http.createServer(function(request, response) {
   }
 
   const parse_inventory_page = function(data) {
+    // Quirks mode is fine for now:
+    response.writeHead(200, {"Content-Type": "text/html"});
     // Get the current queue for the bot:
     let current_cueue = data.substr(data.indexOf("There are currently"));
     current_cueue = current_cueue.substr(0, current_cueue.indexOf('<'));
-    response.write(`${current_cueue}\n\n`);
+    response.write(`${current_cueue}<br><br>`);
 
     // Total value of all cards:
     let total = 0;
@@ -197,7 +199,11 @@ http.createServer(function(request, response) {
 
       // Print the result:
       for (const card in inventory) {
-        response.write(`${inventory[card]['count']} x ${inventory[card]['game_name']} : ${inventory[card]['total_price']}\n`);
+        response.write(`${inventory[card]['count']} x
+            <a href="http://www.steamcardexchange.net/index.php?inventorygame-appid-${inventory[card]['game_id']}">
+            ${inventory[card]['game_name']}
+            </a> : ${inventory[card]['total_price']}
+            <br>`);
       }
 
       response.write(`\nTotal value of all cards owned: ${total}`);
