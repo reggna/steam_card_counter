@@ -24,12 +24,19 @@ $(document).ready(function() {
           // Break the loop if this is not a real card
           if (el.firstChild.firstChild === null) return false;
           const name = $(".card-name", el)[0].innerText;
+          const tname = name + " (Trading Card)";
           $.each(json["rgDescriptions"], function(id, obj) {
-            if (obj["name"] === name) {
-              const div = document.createElement('div');
-              div.innerText = "You got " + amount[obj["classid"]];
-              el.firstChild.appendChild(div);
-              return false;
+            if (obj["name"] === name || obj["name"] === tname) {
+              // Skip this item if it's not a card, or if it's a foil card:
+              const type = obj['type'];
+              const is_foil = obj['market_name'].indexOf('(Foil)') > -1;
+              if (type.substring(type.length - 4, type.length) === "Card" && !is_foil) {
+                const div = document.createElement('div');
+                div.innerText = "You got " + amount[obj["classid"]];
+                el.firstChild.appendChild(div);
+                // Found the card we're searching for, so stop the loop now:
+                return false;
+              }
             }
           });
         });
