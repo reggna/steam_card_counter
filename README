@@ -1,13 +1,39 @@
 
 Some tools for trading steam cards at http://steam.cards (aka
-steamcardexchange.net).  There's currently two services running, one
+steamcardexchange.net).
+
+The first tool is a Chromium extension.  This works in both Chromium,
+Chrome, and Opera (and possibly even in Vivaldi and whatnot).
+
+Install the extension:
+ 1. Go to about://extensions in your browser.
+ 2. Enter developer mode by pressing the button marked Developer mode
+ 3. Press Load unpacked extension and navigate to the chromium_extension folder
+
+Now that you visit http://www.steamcardexchange.net/index.php?inventory
+you will notice a new column appearing to the far right.  The "Total" column
+represents the cost in credits needed to buy a whole set, and is calculated
+by taking the cost for one card (noted in the "Worth" column) times the
+number of card in the set.
+
+Also, if you have connected your page to your steam account, the extension
+will check your inventory each time you visit the inventory of a specific game.
+For example, if you have 2 CS:GO cards, and visit
+http://www.steamcardexchange.net/index.php?inventorygame-appid-730
+the number of cards in your inventory will be displayed above the
+corresponding card on the page.
+Note that this requires you to be logged in on the Steam Card Exchange page
+in order to work.
+
+
+Included is also a node server with two services running, one
 for searching through the inventory of the trading bot and monitors
 the inventory status of the cards the user is missing, and another
-that looks through a users own inventory and lists the prices of cards
+that looks through a users inventory and lists the prices of cards
 that the user might be interesting in trading away.
 
 Example:
- 1. Start the server by runnig:
+ 1. Start the server by running:
       node counter.js
  2. Visit http://localhost:8080/17710_2,317710_3,284770_6,212680_5
     Note that the ID:s are separated by commas.
@@ -18,7 +44,7 @@ Example:
     You can get your steam_id by looking at the url of your steam profile page
     at http://steamcommunity.com/
  3. The page will fill up as the search goes on.  The API is limited to
-    2500 items per lookup, so it will have to go through a few pages
+    2500 items per lookup, so it might have to go through a few pages
     before displaying the results.
  4. The result is printed out at the bottom of the page.
  5. Happy trading!
