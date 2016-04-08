@@ -11,7 +11,7 @@ $(document).ready(function() {
         // Create an object that maps classid to the number of each card that
         // is in the user's inventory
         const amount = { };
-        const rgInventory = json['rgInventory'];
+        const rgInventory = json["rgInventory"];
         for (const key in rgInventory) {
           const item_id = rgInventory[key]["classid"];
           if (amount[item_id] === undefined) {
@@ -30,10 +30,10 @@ $(document).ready(function() {
             if ((obj["app_data"]["appid"] === appid) &&
                 (obj["name"] === name || obj["name"] === tname)) {
               // Skip this item if it's not a card, or if it's a foil card:
-              const type = obj['type'];
-              const is_foil = obj['market_name'].indexOf('(Foil)') > -1;
+              const type = obj["type"];
+              const is_foil = obj["market_name"].indexOf("(Foil)") > -1;
               if (type.substring(type.length - 4, type.length) === "Card" && !is_foil) {
-                const div = document.createElement('div');
+                const div = document.createElement("div");
                 div.innerText = "You got " + amount[obj["classid"]];
                 el.firstChild.appendChild(div);
                 // Found the card we're searching for, so stop the loop now:
@@ -62,7 +62,7 @@ $(document).ready(function() {
     // necessary data:
     function run() {
       $.each(gameprices, function(appid, price) {
-        const row = $('#price-'+appid).parent()[0];
+        const row = $("#price-"+appid).parent()[0];
         if (row !== undefined) {
           const col = row.insertCell(-1);
           if (appid in stocklist) {
@@ -72,8 +72,8 @@ $(document).ready(function() {
         }
       });
     };
-    const script = document.createElement('script');
-    script.appendChild(document.createTextNode('('+ run +')();'));
+    const script = document.createElement("script");
+    script.appendChild(document.createTextNode("("+ run +")();"));
     (document.body || document.head || document.documentElement).appendChild(script);
   }
 });
