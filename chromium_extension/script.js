@@ -75,5 +75,46 @@ $(document).ready(function() {
     const script = document.createElement("script");
     script.appendChild(document.createTextNode("("+ run +")();"));
     (document.body || document.head || document.documentElement).appendChild(script);
+
+    // Add a highlight of the sets with already owned cards:
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        const responseDocument = $($.parseHTML(xhr.responseText));
+        $.each(responseDocument.find(".badge_row"), function(index, badge_row) {
+          let appid = badge_row.firstElementChild.href.match("([0-9]+)/$");
+          // If this is a foil or something, just continue:
+          if (appid === null) return true;
+          appid = appid[1];
+          const info = $(badge_row).find(".progress_info_bold").text().trim();
+          const progress = $(badge_row).find(".badge_progress_info").text().trim();
+          if (info.length > 0) {
+            const row = document.getElementById("status-" + appid);
+            const a = row.firstElementChild;
+            const span = document.createElement("span");
+            span.style.fontSize = "0.9em";
+            span.style.color = "#999";
+            span.innerText = " (" + info;
+            if ((progress === "Ready") ||
+                (progress.substr(0,1) !== "0") ||
+                (info !== "No card drops remaining")) {
+              span.innerText += ", " + progress;
+              if (progress === "Ready") {
+                a.style.cssText = "background-color: #470 !important";
+              } else if (progress.substr(0,1) !== "0") {
+                a.style.cssText = "background-color: #047 !important";
+              }
+            }
+            span.innerText += ")";
+            a.appendChild(span);
+          }
+        });
+      }
+    };
+    const user_name = $(".name")[0].innerText;
+    if (user_name !== "") {
+      xhr.open("GET", "https://steamcommunity.com/id/" + user_name + "/badges/", true);
+      xhr.send();
+    }
   }
 });
