@@ -25,8 +25,10 @@ $(document).ready(function() {
           if (el.firstChild.firstChild === null) return false;
           const name = $(".card-name", el)[0].innerText;
           const tname = name + " (Trading Card)";
+          const appid = location.search.match(/inventorygame-appid-([0-9]+)/)[1];
           $.each(json["rgDescriptions"], function(id, obj) {
-            if (obj["name"] === name || obj["name"] === tname) {
+            if ((obj["app_data"]["appid"] === appid) &&
+                (obj["name"] === name || obj["name"] === tname)) {
               // Skip this item if it's not a card, or if it's a foil card:
               const type = obj['type'];
               const is_foil = obj['market_name'].indexOf('(Foil)') > -1;
