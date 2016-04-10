@@ -107,6 +107,7 @@ $(document).ready(function() {
             }
             span.innerText += ")";
             a.appendChild(span);
+            row.parentElement.classList.add("owned");
           }
         });
       }
@@ -116,5 +117,12 @@ $(document).ready(function() {
       xhr.open("GET", "https://steamcommunity.com/id/" + user_name + "/badges/", true);
       xhr.send();
     }
+
+    // Add a filter button for only displaying sets with cards you own:
+    const link = document.createElement("div");
+    link.onclick = function() { $("#inventorylist").toggleClass("filter"); };
+    link.innerText = "OWNED";
+    link.className = "button-blue";
+    document.getElementById("inventory-info").children[0].appendChild(link);
   }
 });

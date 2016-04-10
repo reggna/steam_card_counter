@@ -1,0 +1,5 @@
+
+table.filter tbody tr:not(.owned) {
+  display: none;
+}
+

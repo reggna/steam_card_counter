@@ -10,6 +10,7 @@
         "http://*.steamcardexchange.net/*inventory*",
         "http://*.steamcardexchange.net/*userlist*"
       ],
+      "css": ["style.css"],
       "js": ["jquery-2.1.4.min.js", "script.js"],
       "run_at": "document_start"
     }
