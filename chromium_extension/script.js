@@ -1,6 +1,7 @@
 "use strict";
 
 $(document).ready(function() {
+  const user_name = $(".name")[0].innerText.split(' (')[0];
   if (location.href.indexOf("inventorygame-appid") > -1) {
     // Fetch the users inventory, parse it and print out the number of each
     // card that the user has.
@@ -44,7 +45,6 @@ $(document).ready(function() {
         });
       }
     };
-    const user_name = $(".name")[0].innerText;
     if (user_name === "") return; // If the user is not logged in
     // TODO: The inventory page is paginated, capped at a size of ~2500.
     xhr.open("GET", "https://steamcommunity.com/id/" + user_name + "/inventory/json/753/6?start=0", true);
@@ -112,7 +112,6 @@ $(document).ready(function() {
         });
       }
     };
-    const user_name = $(".name")[0].innerText;
     if (user_name !== "") {
       xhr.open("GET", "https://steamcommunity.com/id/" + user_name + "/badges/", true);
       xhr.send();
