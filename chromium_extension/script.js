@@ -90,6 +90,7 @@ $(document).ready(function() {
           const progress = $(badge_row).find(".badge_progress_info").text().trim();
           if (info.length > 0) {
             const row = document.getElementById("status-" + appid);
+            if (row === null) return false;
             const a = row.firstElementChild;
             const span = document.createElement("span");
             span.style.fontSize = "0.9em";
