@@ -111,6 +111,13 @@ $(document).ready(function() {
             row.parentElement.classList.add("owned");
           }
         });
+        // Find Level 5 badges, and remove them from the page inventory page:
+        $.each(responseDocument.find('*:contains("Level 5,")'), function(index, a) {
+          if (a.className === "badge_row is_link") {
+            const appid = a.firstElementChild.href.split("/").slice(6,7)[0];
+            document.getElementById("appid-" + appid).remove();
+          }
+        });
       }
     };
     if (user_name !== "") {
