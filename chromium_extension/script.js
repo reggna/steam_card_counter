@@ -1,5 +1,47 @@
 "use strict";
 
+// On the main inventory page, create a new column with the total price
+// of each badge.
+document.addEventListener("DOMContentLoaded", function() {
+  function run() {
+    // Override all calls to jquery by taking over $:
+    const jquery = $;
+    $ = (function(arg) {
+      var ret = jquery(arg);
+      // This way, we can intercept the creation of the datatable, and add a
+      // new column with the data we need:
+      if (arg === '#inventorylist') {
+        const jquery_DataTable = jquery(arg).__proto__.DataTable;
+        ret.__proto__.DataTable = function(args) {
+          args.columns[0].width = '50%';
+          args.columns.push({width: '10%', title: 'Total price'});
+          args.columnDefs.push({
+            targets: [4],
+            render: function(data, type, full, meta) {
+              return full[1]*full[3][0];
+            }
+          });
+          args.createdRow = function(row, data) {
+            row.id = "appid-" + data[0][0];
+          };
+          // Make sure we use the correct "this" here:
+          return jquery_DataTable.call(ret, args);
+        }
+        // After this, we need to return $ to jquery, to make sure that the
+        // filters are still working.
+        $ = jquery;
+      }
+      return ret;
+    }).bind(jquery);
+  };
+  // We need to execute this script in the same context as the page (not the
+  // extension's context):
+  const script = document.createElement("script");
+  script.appendChild(document.createTextNode("("+ run +")();"));
+  (document.body || document.head || document.documentElement).appendChild(script);
+});
+
+
 $(document).ready(function() {
   const user_name = $(".name")[0].innerText.split(' (')[0];
   if (user_name === "") return; // If the user is not logged in
@@ -29,7 +71,7 @@ $(document).ready(function() {
           const tname = name + " (Trading Card)";
           const appid = location.search.match(/inventorygame-appid-([0-9]+)/)[1];
           $.each(json["rgDescriptions"], function(id, obj) {
-            if ((obj["app_data"]["appid"] === appid) &&
+            if ((obj["market_fee_app"] === appid) &&
                 (obj["name"] === name || obj["name"] === tname)) {
               // Skip this item if it's not a card, or if it's a foil card:
               const type = obj["type"];
@@ -50,32 +92,8 @@ $(document).ready(function() {
     xhr.open("GET", "https://steamcommunity.com/id/" + user_name + "/inventory/json/753/6?start=0", true);
     xhr.send();
   } else {
-    // On the main inventory page, create a new column with the total price
-    // of each badge.
-    const table = document.getElementById("inventorylist");
-    const r1 = table.rows[0];
-    const th = r1.cells[2].cloneNode(true);
-    th.innerText = "Total";
-    r1.appendChild(th);
-
-    // Execute this script in the page js context, as it has all the
-    // necessary data:
-    function run() {
-      $.each(gameprices, function(appid, price) {
-        const row = $("#price-"+appid).parent()[0];
-        if (row !== undefined) {
-          const col = row.insertCell(-1);
-          if (appid in stocklist) {
-            const count = stocklist[appid][0];
-            col.innerText = price * count;
-          }
-        }
-      });
-    };
-    const script = document.createElement("script");
-    script.appendChild(document.createTextNode("("+ run +")();"));
-    (document.body || document.head || document.documentElement).appendChild(script);
-
+    // TODO: Temporary workaround
+    setTimeout(function() {
     // Add a highlight of the sets with already owned cards:
     const xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
@@ -89,9 +107,9 @@ $(document).ready(function() {
           const info = $(badge_row).find(".progress_info_bold").text().trim();
           const progress = $(badge_row).find(".badge_progress_info").text().trim();
           if (info.length > 0) {
-            const row = document.getElementById("status-" + appid);
+            const row = document.getElementById("appid-" + appid);
             if (row === null) return true;
-            const a = row.firstElementChild;
+            const a = row.firstElementChild.firstElementChild;
             const span = document.createElement("span");
             span.style.fontSize = "0.9em";
             span.style.color = "#999";
@@ -101,27 +119,30 @@ $(document).ready(function() {
                 (info !== "No card drops remaining")) {
               span.innerText += ", " + progress;
               if (progress === "Ready") {
-                a.style.cssText = "background-color: #470 !important";
+                row.style.cssText = "background-color: #470 !important";
               } else if (progress.substr(0,1) !== "0") {
-                a.style.cssText = "background-color: #047 !important";
+                row.style.cssText = "background-color: #047 !important";
               }
             }
             span.innerText += ")";
             a.appendChild(span);
-            row.parentElement.classList.add("owned");
+            row.classList.add("owned");
           }
         });
         // Find Level 5 badges, and remove them from the page inventory page:
+        // TODO:
+        /*
         $.each(responseDocument.find('*:contains("Level 5,")'), function(index, a) {
           if (a.className === "badge_row is_link") {
             const appid = a.firstElementChild.href.split("/").slice(6,7)[0];
             document.getElementById("appid-" + appid).remove();
           }
-        });
+        });*/
       }
     };
     xhr.open("GET", "https://steamcommunity.com/id/" + user_name + "/badges/", true);
     xhr.send();
+    }, 5000);
 
     // Add a filter button for only displaying sets with cards you own:
     const link = document.createElement("div");
